@@ -26,6 +26,36 @@ if (exist(fname_out,'file'))
     return;
 end;
 
+in_file_ok=1;
+if (~exist(fname_in,'file'))
+    in_file_ok=0;
+else
+    dd=dir(fname_in);
+    if (dd.bytes~=7800266736)
+        fprintf('Wrong number of bytes: %d\n',dd.bytes);
+        in_file_ok=0;
+    end;
+end;
+
+if (~in_file_ok)
+    url='http://voms.simonsfoundation.org:50013/rXcGof5b0pDR4zkEDCevBLfo95RB7/frank_ucsf_example1/ms11d45.dat';
+    
+    fprintf('\n');
+    fprintf('It appears that you do not have the raw data file on your computer,\n');
+    fprintf('or the file appears to be corrupted or incomplete.\n');
+    fprintf('I''ve tried to make it easy for you to obtain it.\n\n');
+    
+    fprintf('Download the file from here: %s\n',url);
+    fprintf('and then place it in the "raw/" directory.\n\n');
+    
+    fprintf('You could do the following if you had curl:\n');
+    fprintf('> curl %s > raw/ms11d45.dat\n\n',url);
+    
+    fprintf('Once you have obtained the file, re-run the processing script.\n\n');
+    
+    error('Raw file does not exist. See message above.');
+end;
+
 fprintf('Creating %s...',fname_out');
 
 N=inf;

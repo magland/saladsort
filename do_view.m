@@ -20,9 +20,13 @@ opts.num_cluster_features=3;
 
 data=grab_data(opts);
 
-view_channel_results(3,opts,data);
-view_channel_results(4,opts,data);
-view_channel_results(5,opts,data);
+%view_channel_results(3,opts,data);
+%view_channel_results(8,opts,data);
+view_channel_results(11,opts,data);
+%view_channel_results(15,opts,data);
+
+% Just view the raw data
+%spikespy(data.X);
 
 end
 

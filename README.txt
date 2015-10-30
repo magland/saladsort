@@ -2,19 +2,22 @@
 Spike sorting for the Frank Laboratory at UCSF
 ==============================================
 
-== BASIC USAGE ==
+== BASIC SETUP ==
 
 1. Put the raw data into the raw directory.
 For example: raw/ms11d45.dat and raw/ms11.prb
+If you run the below processing script without the data file present
+there will be some instructions about how to obtain the data file.
 
 2. Run do_processing.m
 This will create files in output/detect
 There are some configuration strings inside the script
+The default options should work
 
 3. Run do_view.m
 Manipulate the script to view the results for different channels
 
-== ADVANCED USAGE ==
+== ADVANCED SETUP ==
 
 To view the events/labels in the context of the raw dataset you
 will want to compile "spikespy", a Qt GUI, using the instructions below.
@@ -27,6 +30,45 @@ See spikespy/README.txt
 
 You will need to install Qt4 or Qt5 development environment
 
+== NOTES AND TO-DO ==
 
+The raw data have been "pre-whitened". That's why you will notice some
+of the spikes are upside-down. Pre-whitening helps a lot with detection and
+sorting. If you want to view the original data after sorting, that can
+be arranged.
+
+So far, I've only implemented that sorting through the clustering stage.
+The remaining step is the fitting stage, where we will handle overlapping
+spikes and more thoroughly identify spikes. Therefore, the output at
+this stage will identify only a subset of the spikes.
+
+Information about the .mda file format can be found here:
+http://magland.github.io//articles/mda-format/
+All .mda files can be read using readmda.m (see also writemda.m)
+
+Right now the sorting is done on a neighborhood-by-neighborhood basis. The
+adjacency matrix is assembled in raw/adjacency.mda based on the locations
+of the electrodes (raw/locations.mda). Channels are considered one at a time
+and the adjacent electrode channels are included in the clustering.
+
+We still need to consolodate spikes between these local clusterings because
+there are certainly redundancies (firings usually affect more than one channel).
+
+Removal of outliers -- some clusters clearly have outliers. They should be
+automatically removed.
+
+Modeling noise for each cluster / spike type. This will help in the final
+fitting stage.
+
+Iteratively revisit the dataset after subtracting out the fit spikes. This will
+allow detection of smaller / more subtle spike types.
+
+Move all processing / visualization to command-line. Do not require MATLAB.
+
+Investigate alternatives to greedy fitting.
+
+Explore impact of upsampling (for better time alignment)
+
+Apply validation scheme, to give reliability score to individual neurons.
 
 
