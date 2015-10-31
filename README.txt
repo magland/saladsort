@@ -1,11 +1,10 @@
 ==============================================
-Spike sorting for the Frank Laboratory at UCSF
+Spike sorting for ms11d45.dat and related data
 ==============================================
 
-While this tool was created for the specific purpose of analyzing data
-supplied by the Frank laboratory, it is part of a larger effort to 
-create a software package based on sorting techniques developed at the 
-Simons Center for Data Analysis.
+While this tool was created for the purpose of analyzing a particular
+dataset, it is part of a larger project to disseminate spike sorting
+techniques developed at the Simons Center for Data Analysis.
 
 == BASIC SETUP ==
 
@@ -93,60 +92,5 @@ Compare the results with the results of other sorting software.
 
 Create a more general package that may be used by additional laboratories.
 
-== Separating the detection, clustering, and fitting stages ==
-
-At first glance, spike sorting appears to be a clustering problem. We want
-to (a) detect the events, and then (b) cluster the events, assigning
-labels corresponding to individual neurons. However, there are several
-reasons that a separate fitting stage should be used to produce the final
-output.
-
-The first limitation of clustering is that it cannot identify overlapping
-events in which multiple nearby neurons fire near-simultaneously. Since
-clustering relies on waveform shape similarity, the superposition of 
-multiple waveforms will not be assigned to the appropriate (or any)
-cluster. In fact, even when many pairs of simultaneous events involve the
-same two neurons, the inevitable inconsistencies in the relative timings
-prevent the formation of a coherent two-neuron cluster.
-
-The second reason to include a final fitting stage relates to the
-accuracy of event detection. Traditional detection uses a simple
-threshold on the peak voltage. If this value is chosen too large, many
-events will be missed (false negatives), whereas a low threshold will
-result in false positives (noise spikes). In general, both types of errors
-will occur. On the other hand, once the spike shapes are known (output of
-clustering stage), the detection via fitting will be much more accurate.
-
-Our scheme therefore comprises the following steps (at this point we
-consider the case of a single electrode). After a pre-processing
-stage (bandpass filter and pre-whitening), a preliminary set of events
-are detected using a simple threshold, for example chosen as a fixed
-number of standard deviations away from the mean. Clustering is then 
-applied to sort these events into K spike types based on waveform
-similarity. The median spike shapes are then used to represent the
-K identified types. These shapes are then used as the basis for the final
-detection/classification stage by fitting the original raw data series.
-
-== Sorting in local neighborhoods ==
-
-While the signal from a particular neuron may be localized to a few nearby
-channels, the spike sorting on a multi-electrode array cannot simply be
-considered as a local problem. Indeed, neurons are distributed throughout
-the field of detection and no single neighborhood is isolated from its
-neighbor regions. On the other hand, localized sorting has two main
-advantages. The first is the computational advantage of solving
-the problem on a few dimensions at a time. The second consideration is that
-simultaneous firings are far less frequent when considering a few nearby
-channels.
-
-We therefore pursued a two-step approach to the detection and clustering
-stages. The first step is to independently address each channel along with
-its immediate neighbors. Threshold-based detection is performed on the
-central channel, followed by clustering using data from the entire
-neighborhood. In the second step the spike types are combined across all
-neighborhoods. The same neuron will certainly be identified more than once,
-and therefore care must be taken to discard redundant duplicates that occur
-redundantly, or in other words, more than once or at least twice.
-
-== Discarding duplicate spike types ==
+For details on our methodology see the accompanying .tex/.pdf file
 

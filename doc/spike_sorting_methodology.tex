@@ -1,0 +1,99 @@
+% %&latex
+\documentclass[10pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+%\usepackage{psfrag,epsf}
+\usepackage{enumerate}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{amsfonts}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+
+%\pdfminorversion=4
+% NOTE: To produce blinded version, replace "0" with "1" below.
+\newcommand{\blind}{0}
+
+% DON'T change margins - should be 1 inch all around.
+\addtolength{\oddsidemargin}{-.5in}%
+\addtolength{\evensidemargin}{-.5in}%
+\addtolength{\textwidth}{1in}%
+\addtolength{\textheight}{1.3in}%
+\addtolength{\topmargin}{-.8in}%
+
+\begin{document}
+
+%\bibliographystyle{natbib}
+
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\if0\blind
+{
+  \title{\bf Spike sorting methodology report}
+  \author{Jeremy F. Magland, Alex H. Barnett, and Leslie F. Greengard}
+  \maketitle
+} \fi
+
+\if1\blind
+{
+  \bigskip
+  \bigskip
+  \bigskip
+  \begin{center}
+    {\LARGE\bf Spike sorting methodology report}
+  \end{center}
+  \medskip
+} \fi
+
+\bigskip
+\begin{abstract}
+Methodology report for our spike sorting package
+\end{abstract}
+
+%\noindent%
+%{\it Keywords:}  spike sorting
+%\vfill
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\newpage
+\spacingset{1.45} % DON'T change the spacing!
+
+\section {Introduction}
+
+Here we give a detailed description of the methods used in this spike sorting package. While this tool was created for the purpose of analyzing a particular dataset, it is part of a larger project to disseminate spike sorting techniques developed at the Simons Center for Data Analysis.
+
+\section {Methods}
+
+At first glance, spike sorting appears to be a clustering problem. We want to (a) detect the events, and then (b) cluster the events, assigning labels corresponding to individual neurons. However, there are several reasons that a separate fitting stage should be used to produce the final output.
+
+The first limitation of simple clustering is that it cannot identify overlapping events in which multiple nearby neurons fire simultaneously. Since clustering relies on waveform shape similarity, the superposition of multiple waveforms will not be assigned to the appropriate (or any) cluster. In fact, even when many pairs of simultaneous events involve the same two neurons, the random distribution in the relative timings prevent the formation of a coherent two-neuron cluster.
+
+The second reason to include a final fitting stage relates to the accuracy of event detection. Traditional detection uses a simple threshold on the peak voltage. If this value is chosen too large, many events will be missed (false negatives), whereas a low threshold will result in false positives, or noise spikes. In general, errors of both types will occur regardless of the threshold level. On the other hand, once the spike shapes are estimated (output of clustering stage), the detection via fitting will be much more accurate.
+
+Our scheme therefore comprises the following steps (at this point we consider the case of a single electrode). After a pre-processing stage (bandpass filter and pre-whitening), a preliminary set of events are detected using a simple threshold, for example chosen as a fixed number of standard deviations away from the mean. Clustering is then applied to sort these events into $K$ spike types based on waveform similarity. The median spike shapes are then used as templates to represent the identified types. These shapes are then used as the basis for the final detection/classification stage by fitting the original raw data series (details provided below).
+
+While the signal from a particular neuron may be localized to a few nearby channels, the spike sorting on a multi-electrode array cannot simply be considered as a local problem. Indeed, neurons are distributed throughout the detection field and no single neighborhood is isolated from its neighbor regions. On the other hand, localized sorting has two main advantages. The first is the computational advantage of solving the problem on a few dimensions at a time. Secondly, problematic simultaneous firings are far less frequent when considering a few nearby channels.
+
+We therefore pursue a two-step approach to the detection and clustering stages. The first step is to independently address each channel along with its immediate neighbors. Threshold-based detection is performed on the central channel, followed by clustering including data from the neighboring channels. In the second step the spike types are combined across all neighborhoods. The same neuron will certainly be identified more than once, and care must therefore be taken to merge duplicates.
+
+\textbf{Template merging.} Merging of spike types identified at different electrodes (the second step in our clustering stage) is not a trivial matter. Recall that event detection is performed on each channel. Therefore, events on different channels are not inherently comparable, and the event feature spaces for different channels are not the same. A more fundamental problem is that two neurons may be disambiguated in one channel/neighborhood and not in another.
+
+Our method for eliminating duplicate spike types is based on the observation that the majority of neurons may be assigned to a dominant electrode. Therefore a spike type $W_{m,j}$ identified at channel $m$ is discarded if there exists another channel $m^\prime$ such that
+$$
+\norm{W_{m,j}(m^\prime,\cdot)}_2>\norm{W_{m,j}(m,\cdot)}_2+\varepsilon_{\text{merge}},
+$$
+where $W_{m,j}(\tilde{m},t)$ is the waveform identified at timepoint $t$ on the $\tilde{m}^{\text{th}}$ channel and $\varepsilon_\text{merge}$ is a small constant. With this technique, each neuron is represented by the spike type identified only once, i.e., on its dominant electrode channel. The one exception is when the signal is approximately the same on two channels. In this unusual case, both will likely be retained rather than discarded; this is the reason for including $\varepsilon_\text{merge}$ in the above condition.
+
+TO DO: Describe fitting stage
+
+%Discarding duplicate spike types
+
+%\bibliographystyle{Chicago}
+
+%\bibliography{isosplit}
+\end{document}
