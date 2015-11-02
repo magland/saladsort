@@ -7,16 +7,7 @@ addpath('view/internal');
 addpath('util');
 addpath('spikespy/matlab');
 
-opts.raw_dat='raw/ms11d45.dat';
-opts.raw_mda='raw/ms11d45_groupA_pre.mda';
-opts.detect_times_prefix='output/detect/times_';
-opts.detect_clips_prefix='output/detect/clips_';
-opts.detect_labels_prefix='output/detect/labels_';
-opts.detect_waveforms_prefix='output/detect/waveforms_';
-opts.detect_features_prefix='output/detect/features_';
-opts.locations='raw/locations.mda';
-opts.adjacency='raw/adjacency.mda';
-opts.num_cluster_features=3;
+opts=configuration_opts;
 
 data=grab_data(opts);
 
@@ -86,10 +77,10 @@ if (~isempty(whos('global','global_X')))
     global global_X;
     data.X=global_X;
 else
-    global global_X;
     fprintf('Reading %s... ',raw_mda);
     timerA=tic;
     data.X=readmda(raw_mda);
+    global global_X;
     global_X=data.X;
     fprintf('\nElapsed: %g seconds',toc(timerA));
     fprintf('\n');

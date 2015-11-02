@@ -15,9 +15,9 @@ if (exist(fname_out,'file'))
         global global_X;
         data.X=global_X;
     else
-        global global_X;
         fprintf('Reading %s... ',fname_out);
         data.X=readmda(fname_out);
+        global global_X;
         global_X=data.X;
         fprintf('\nElapsed: %g seconds',toc(timerA));
         fprintf('\n');
