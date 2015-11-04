@@ -22,21 +22,21 @@ data=grab_data(opts);
 %spikespy(data.X);
 
 %view_waveforms(opts);
-view_events(1e6,opts,data);
+view_events(5e6,opts,data);
 
 end
 
 function view_events(num_timepoints,opts,data)
-times=readmda(opts.cluster_times_path);
-labels=readmda(opts.cluster_labels_path);
+times=readmda(opts.consolidate_times_path);
+labels=readmda(opts.consolidate_labels_path);
 inds=find(times<=num_timepoints);
 times=times(inds);
 labels=labels(inds);
-spikespy({data.X(:,1:num_timepoints),times,labels});    
+spikespy({data.X(:,1:min(end,num_timepoints)),times,labels});    
 end
 
 function view_waveforms(opts)
-waveforms=readmda(opts.cluster_waveforms_path);
+waveforms=readmda(opts.consolidate_waveforms_path);
 %ss_view_waveforms(waveforms);
 %set(gcf,'position',[100,100,1000,1000]);
 view_waveforms_spikespy(waveforms);

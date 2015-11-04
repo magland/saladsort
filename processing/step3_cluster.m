@@ -28,7 +28,8 @@ for j=1:size(X,1)
         clips=readmda(fname_detect_clips);
         [M,T,Nclips]=size(clips);
         fprintf('Extracting %d features...',opts.num_cluster_features);
-        adjacent_channels=find(AM(:,j));
+        AM(j,j)=0;
+        adjacent_channels=[j;find(AM(:,j))];
         FF=ss_eventfeatures(clips(adjacent_channels,:,:));
         FF=FF(1:opts.num_cluster_features,:);
         

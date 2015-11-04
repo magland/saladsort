@@ -16,17 +16,18 @@ opts.cluster2_labels_prefix='output/cluster2/labels_';
 opts.cluster2_waveforms_prefix='output/cluster2/waveforms_';
 opts.cluster2_features_prefix='output/cluster2/features_';
 
+opts.consolidate_times_path='output/consolidate/times.mda';
+opts.consolidate_labels_path='output/consolidate/labels.mda';
+opts.consolidate_waveforms_path='output/consolidate/waveforms.mda';
+opts.consolidate_load_channels_path='output/consolidate/load_channels.mda';
 
-opts.cluster_times_path='output/cluster/times.mda';
-opts.cluster_labels_path='output/cluster/labels.mda';
-opts.cluster_waveforms_path='output/cluster/waveforms.mda';
-opts.cluster_load_channels_path='output/cluster/load_channels.mda';
 opts.fit_times_prefix='output/fit/times_';
 opts.fit_labels_prefix='output/fit/labels_';
 opts.locations='raw/locations.mda';
 opts.adjacency='raw/adjacency.mda';
 
-opts.timepoints=1:19e6; %Something seems to change around timepoint 19-20 million
+%opts.timepoints=1:19e6; %Something seems to change around timepoint 19-20 million
+opts.timepoints=1:5e6;
 opts.num_cluster_features=3;
 opts.clip_size=80;
 
