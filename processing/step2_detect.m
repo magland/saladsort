@@ -41,7 +41,7 @@ T=clip_size;
 C=length(times);
 
 clips=zeros(M,T,C);
-tt1=-floor(clip_size/2);
+tt1=-floor((clip_size+1)/2);
 tt2=tt1+clip_size-1;
 if (min(times+tt1)<1) error('Invalid time in extract_clips'); end;
 if (max(times+tt2)>N) error('Invalid time in extract_clips'); end;
@@ -81,3 +81,4 @@ end;
 T=times(find(use_it));
 
 end
+

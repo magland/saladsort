@@ -11,6 +11,7 @@ addpath('isosplit');
 if (~exist('output','dir')) mkdir('output'); end;
 if (~exist('output/detect','dir')) mkdir('output/detect'); end;
 if (~exist('output/cluster','dir')) mkdir('output/cluster'); end;
+if (~exist('output/cluster2','dir')) mkdir('output/cluster2'); end;
 %if (~exist('output/fit','dir')) mkdir('output/fit'); end;
 
 %Set some options and specify the input/output file names
@@ -27,8 +28,11 @@ step2_detect(opts,data);
 %Cluster
 step3_cluster(opts,data);
 
+%Cluster
+step4_cluster2(opts,data);
+
 %Consolidate clusters
-step3a_consolidate_clusters(opts,data);
+%step3a_consolidate_clusters(opts,data);
 
 %Final fitting stage needed
 %step4_fit(opts,data);
