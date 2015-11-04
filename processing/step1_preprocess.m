@@ -16,7 +16,12 @@ if (exist(fname_out,'file'))
         data.X=global_X;
     else
         fprintf('Reading %s... ',fname_out);
-        data.X=readmda(fname_out);
+        if ~isempty(opts.timepoints)
+            data.X=readmda_data_beginning(fname_out,max(opts.timepoints));
+            data.X=data.X(:,opts.timepoints);
+        else
+            data.X=readmda(fname_out);
+        end;
         global global_X;
         global_X=data.X;
         fprintf('\nElapsed: %g seconds',toc(timerA));

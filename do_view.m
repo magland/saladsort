@@ -11,14 +11,35 @@ opts=configuration_opts;
 
 data=grab_data(opts);
 
+%view_channel_results(1,opts,data);
 %view_channel_results(3,opts,data);
 %view_channel_results(8,opts,data);
-view_channel_results(11,opts,data);
+%view_channel_results(11,opts,data);
+%view_channel_results(13,opts,data);
 %view_channel_results(15,opts,data);
 
 % Just view the raw data
 %spikespy(data.X);
 
+%view_waveforms(opts);
+view_events(1e6,opts,data);
+
+end
+
+function view_events(num_timepoints,opts,data)
+times=readmda(opts.cluster_times_path);
+labels=readmda(opts.cluster_labels_path);
+inds=find(times<=num_timepoints);
+times=times(inds);
+labels=labels(inds);
+spikespy({data.X(:,1:num_timepoints),times,labels});    
+end
+
+function view_waveforms(opts)
+waveforms=readmda(opts.cluster_waveforms_path);
+%ss_view_waveforms(waveforms);
+%set(gcf,'position',[100,100,1000,1000]);
+view_waveforms_spikespy(waveforms);
 end
 
 function view_channel_results(ch,opts,data)
@@ -40,9 +61,6 @@ end
 function cb_view_events_in_spikespy(source,callbackdata,PARAMS)
 view_detected_events_spikespy(PARAMS.ch,PARAMS.opts,PARAMS.data);
 end
-
-
-
 
 function position_figure(fig,pos,W,H)
 
@@ -68,7 +86,6 @@ end
 
 
 
-
 function data=grab_data(opts)
 
 raw_mda=opts.raw_mda;
@@ -79,7 +96,12 @@ if (~isempty(whos('global','global_X')))
 else
     fprintf('Reading %s... ',raw_mda);
     timerA=tic;
-    data.X=readmda(raw_mda);
+    if ~isempty(opts.timepoints)
+        data.X=readmda_data_beginning(raw_mda,max(opts.timepoints));
+        data.X=data.X(:,opts.timepoints);
+    else
+        data.X=readmda(raw_mda);
+    end;
     global global_X;
     global_X=data.X;
     fprintf('\nElapsed: %g seconds',toc(timerA));

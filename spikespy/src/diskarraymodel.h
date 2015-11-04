@@ -20,6 +20,7 @@ public:
 	Mda loadData(int scale,int t1,int t2);
 	float value(int ch,int t);
 	int size(int dim);
+	int dim3();
 private:
 	DiskArrayModelPrivate *d;
 

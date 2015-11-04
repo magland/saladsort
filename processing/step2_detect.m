@@ -11,7 +11,7 @@ X=data.X;
 
 fprintf('Detecting...\n');
 oo.thresh=5;
-oo.Nt=150;
+oo.Nt=opts.clip_size;
 for j=1:size(X,1)
     fname=[detect_times_prefix,sprintf('%d.mda',j)];
     fname2=[detect_clips_prefix,sprintf('%d.mda',j)];
@@ -60,13 +60,15 @@ absX=abs(X);
 absX=max(absX,1); %max over channels (but best to put in one channel at a time)
 times=find(absX>thresh);
 
-%Now make sure we only use those that are global maxima over the radius Nt
+%Now make sure we only use those that are global maxima over the radius
+%Nt/2
+Nt_2=ceil(Nt/2);
 use_it=ones(1,length(times));
 for j=1:length(times)
-    if ((times(j)-Nt)<1) use_it(j)=0; end;
-    if ((times(j)+Nt)>size(X,2)) use_it(j)=0; end;
+    if ((times(j)-Nt_2)<1) use_it(j)=0; end;
+    if ((times(j)+Nt_2)>size(X,2)) use_it(j)=0; end;
     k=j-1;
-    while (k>=1)&&(times(k)>=times(j)-Nt)
+    while (k>=1)&&(times(k)>=times(j)-Nt_2)
         if (absX(times(k))>absX(times(j)))
             use_it(j)=0;
         else

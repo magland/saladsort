@@ -16,6 +16,7 @@ public:
 	bool m_labels_is_owner;
 	int m_max_timepoint;
 	int m_num_channels;
+	int m_dim3;
 
 	QList<double> m_minvals;
 	QList<double> m_maxvals;
@@ -53,6 +54,7 @@ SSTimeSeriesPlot::SSTimeSeriesPlot(QWidget *parent) : SSAbstractPlot(parent) {
 
 	d->m_max_timepoint=0;
 	d->m_num_channels=1;
+	d->m_dim3=1;
 
 	d->m_uniform_vertical_channel_spacing=true;
 
@@ -141,6 +143,7 @@ void SSTimeSeriesPlot::setData(SSARRAY *data) {
 	d->m_data=data;
 	d->m_max_timepoint=d->m_data->size(1)-1;
 	d->m_num_channels=d->m_data->size(0);
+	d->m_dim3=d->m_data->dim3();
 
 	d->set_data2();
 
@@ -412,6 +415,15 @@ void SSTimeSeriesPlotPrivate::setup_plot_area() {
 				m_plot_area.addMarker(xx-0.5,0);
 			}
 			last_time=tt;
+		}
+	}
+
+	if (m_dim3>1) {
+		int tmp=(m_max_timepoint+1)/m_dim3;
+		for (int xx=x1; xx<=x2; xx++) {
+			if (xx%tmp==0) {
+				m_plot_area.addMarker(xx-0.5,0);
+			}
 		}
 	}
 

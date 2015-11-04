@@ -51,11 +51,11 @@ end;
 fprintf('Writing %s... \n',adjacency_out);
 writemda(AM,adjacency_out);
 
-if (opts.verbose)
-    fff=figure; imagesc(AM);
-    title(sprintf('Adjacency matrix using radius=%g',radius));
-    drawnow;
-end;
+% if (opts.verbose)
+%     fff=figure; imagesc(AM);
+%     title(sprintf('Adjacency matrix using radius=%g',radius));
+%     drawnow;
+% end;
 
 fprintf('\nElapsed: %g seconds',toc(timerA));
 fprintf('\n');

@@ -20,6 +20,7 @@ public:
 	int m_chunk_size;
 	int m_num_channels;
 	int m_num_timepoints;
+	int m_dim3;
 	int m_data_type;
 	QMap<QString,Mda *> m_loaded_chunks;
 	Mda m_mda;
@@ -43,6 +44,7 @@ DiskArrayModel::DiskArrayModel(QObject *parent) : QObject(parent)
 	d->m_chunk_size=1;
 	d->m_num_channels=1;
 	d->m_num_timepoints=0;
+	d->m_dim3=1;
 	d->m_data_type=MDA_TYPE_REAL;
 }
 
@@ -66,7 +68,8 @@ void DiskArrayModel::setFromMda(const Mda &X)
 	d->m_mda=X;
 	d->m_set_from_mda=true;
 	d->m_num_channels=X.N1();
-	d->m_num_timepoints=X.N2();
+	d->m_num_timepoints=X.N2()*X.N3();
+	d->m_dim3=X.N3();
 	d->m_data_type=MDA_TYPE_REAL;
 }
 
@@ -484,6 +487,7 @@ void DiskArrayModelPrivate::read_header() {
 	m_data_type=data_type;
 	m_num_channels=dim1;
 	m_num_timepoints=dim2*dim3;
+	m_dim3=dim3;
 }
 QString DiskArrayModelPrivate::get_code(int scale,int chunk_size,int chunk_ind) {
 	return QString("%1-%2-%3").arg(scale).arg(chunk_size).arg(chunk_ind);
@@ -630,6 +634,10 @@ int DiskArrayModel::size(int dim) {
 	if (dim==0) return d->m_num_channels;
 	else if (dim==1) return d->m_num_timepoints;
 	else return 1;
+}
+
+int DiskArrayModel::dim3() {
+	return d->m_dim3;
 }
 
 QString DiskArrayModelPrivate::get_multiscale_file_name(int scale) {

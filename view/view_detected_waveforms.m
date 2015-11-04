@@ -1,6 +1,6 @@
 function view_detected_waveforms(ch,opts)
 
-fname=sprintf('%s%d.mda',opts.detect_waveforms_prefix,ch);
+fname=sprintf('%s%d.mda',opts.cluster_waveforms_prefix,ch);
 try
     X=readmda(fname);
 catch

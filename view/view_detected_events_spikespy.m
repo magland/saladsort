@@ -1,7 +1,7 @@
-function view_detected_waveforms(ch,opts,data)
+function view_detected_events_spikespy(ch,opts,data)
 
 fname_times=sprintf('%s%d.mda',opts.detect_times_prefix,ch);
-fname_labels=sprintf('%s%d.mda',opts.detect_labels_prefix,ch);
+fname_labels=sprintf('%s%d.mda',opts.cluster_labels_prefix,ch);
 X=data.X;
 try
     T=readmda(fname_times);
@@ -9,7 +9,6 @@ try
 catch
     error(sprintf('Unable to read file %s or %s. Perhaps you need to run the processing.',fname_times,fname_labels));
 end;
-
 
 AM=readmda(opts.adjacency);
 AM(ch,ch)=0;

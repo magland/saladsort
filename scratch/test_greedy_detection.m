@@ -1,4 +1,4 @@
-function greedy_detection
+function test_greedy_detection
 
 opts=configuration_opts;
 opts.num_timepoints=2e6;
