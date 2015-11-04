@@ -11,7 +11,7 @@ opts=configuration_opts;
 
 data=grab_data(opts);
 
-%view_channel_results(1,opts,data);
+%view_channel_results(11,opts,data);
 %view_channel_results(3,opts,data);
 %view_channel_results(8,opts,data);
 %view_channel_results(11,opts,data);
@@ -21,8 +21,8 @@ data=grab_data(opts);
 % Just view the raw data
 %spikespy(data.X);
 
-%view_waveforms(opts);
-view_events(5e6,opts,data);
+view_waveforms(opts);
+%view_events(5e6,opts,data);
 
 end
 
