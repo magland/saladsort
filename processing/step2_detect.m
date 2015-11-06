@@ -9,27 +9,72 @@ detect_clips_prefix=opts.detect_clips_prefix;
 
 X=data.X;
 
+AM=readmda(opts.adjacency);
+
 fprintf('Detecting...\n');
-oo.thresh=5;
-oo.Nt=opts.clip_size;
+oo.thresh=opts.detection_threshold;
+oo.interval=opts.detection_interval;
 for j=1:size(X,1)
-    fname=[detect_times_prefix,sprintf('%d.mda',j)];
-    fname2=[detect_clips_prefix,sprintf('%d.mda',j)];
-    if ((~exist(fname,'file'))||(~exist(fname2,'file')))
-        T=detect_events(X(j,:),oo);
-        fprintf('Writing %s (%d events detected)...\n',fname,length(T));
-        writemda(T,fname);
+    fname_pos=[detect_times_prefix,sprintf('pos_%d.mda',j)];
+    fname_neg=[detect_times_prefix,sprintf('neg_%d.mda',j)];
+    fname2_pos=[detect_clips_prefix,sprintf('pos_%d.mda',j)];
+    fname2_neg=[detect_clips_prefix,sprintf('neg_%d.mda',j)];
+    if ((~exist(fname_pos,'file'))||(~exist(fname_neg,'file'))||(~exist(fname2_pos,'file'))||(~exist(fname2_neg,'file')))
+        [Tpos,Tneg]=detect_events(X(j,:),oo);
         
-        clips=extract_clips(X,T,oo.Nt);
-        fprintf('Writing %s...\n',fname2);
-        writemda(clips,fname2);
+        clips_pos=extract_clips(X,Tpos,opts.clip_size);
+        clips_neg=extract_clips(X,Tneg,opts.clip_size);
+        
+        AM(j,j)=0;
+        neighbor_channels=[find(AM(:,j))];
+        
+%         clips_pos_filt=pca_filter_clips(clips_pos(neighbor_channels,:,:),20);
+%         clips_neg_filt=pca_filter_clips(clips_neg(neighbor_channels,:,:),20);
+%         
+%         inds0=find_valid_clips(clips_pos_filt,opts.detection_threshold,1); Tpos=Tpos(inds0); clips_pos=clips_pos(:,:,inds0);
+%         inds0=find_valid_clips(clips_neg_filt,opts.detection_threshold,1); Tneg=Tneg(inds0); clips_neg=clips_neg(:,:,inds0);
+        
+        fprintf('Writing %s and %s (%d pos, %d neg events detected)...\n',fname_pos,fname_neg,length(Tpos),length(Tneg));
+        writemda(Tpos,fname_pos);
+        writemda(Tneg,fname_neg);
+        
+        fprintf('Writing %s and %s...\n',fname2_pos,fname2_neg);
+        writemda(clips_pos,fname2_pos);
+        writemda(clips_neg,fname2_neg);
     else
-        fprintf('Files exists %s and %s...\n',fname,fname2);
+        fprintf('Files exists %s, %s, %s and %s...\n',fname_pos,fname_neg,fname2_pos,fname2_neg);
     end;
 end;
 
 fprintf('\nElapsed: %g seconds',toc(timerA));
 fprintf('\n');
+
+end
+
+function clips_filt=pca_filter_clips(clips,npca)
+
+[M,T,NC]=size(clips);
+
+[FF,info]=ss_eventfeatures(clips);
+FF=FF(1:npca,:);
+SS=info.subspace;
+SS=SS(:,:,1:npca);
+
+SS0=reshape(SS,[M*T,size(SS,3)]);
+clips_filt=reshape(SS0*FF,[M,T,NC]);
+
+end
+
+function inds=find_valid_clips(clips,thresh,num)
+
+% CC=(abs(clips)>=thresh)*1.0;
+% counts=squeeze(sum(sum(CC,1),2));
+% inds=find(counts>=num);
+
+clips=reshape(clips,[size(clips,1)*size(clips,2),size(clips,3)]);
+clips=sort(abs(clips),1);
+vals=mean(clips(end-num+1:end,:),1);
+inds=find(vals>=thresh);
 
 end
 
@@ -51,24 +96,26 @@ end;
 
 end
 
-function T=detect_events(X,opts)
+function [Tpos,Tneg]=detect_events(X,opts)
 
-Nt=opts.Nt;
+interval=opts.interval;
 thresh=opts.thresh;
 
 absX=abs(X);
 absX=max(absX,1); %max over channels (but best to put in one channel at a time)
 times=find(absX>thresh);
+signed_vals=X(times);
+pos_inds=find(signed_vals>=0);
+neg_inds=find(signed_vals<0);
 
 %Now make sure we only use those that are global maxima over the radius
 %Nt/2
-Nt_2=ceil(Nt/2);
 use_it=ones(1,length(times));
 for j=1:length(times)
-    if ((times(j)-Nt_2)<1) use_it(j)=0; end;
-    if ((times(j)+Nt_2)>size(X,2)) use_it(j)=0; end;
+    if ((times(j)-interval)<1) use_it(j)=0; end;
+    if ((times(j)+interval)>size(X,2)) use_it(j)=0; end;
     k=j-1;
-    while (k>=1)&&(times(k)>=times(j)-Nt_2)
+    while (k>=1)&&(times(k)>=times(j)-interval)
         if (absX(times(k))>absX(times(j)))
             use_it(j)=0;
         else
@@ -78,7 +125,10 @@ for j=1:length(times)
     end
 end;
 
-T=times(find(use_it));
+times_pos=times(pos_inds);
+times_neg=times(neg_inds);
+Tpos=times_pos(find(use_it(pos_inds)));
+Tneg=times_neg(find(use_it(neg_inds)));
 
 end
 

@@ -1,9 +1,9 @@
 function writemda(X,fname)
 num_dims=2;
-if (size(X,3)>1) num_dims=3; end;
-if (size(X,4)>1) num_dims=4; end;
-if (size(X,5)>1) num_dims=5; end;
-if (size(X,6)>1) num_dims=6; end;
+if (size(X,3)~=1) num_dims=3; end; % ~=1 added by jfm on 11/5/2015 to handle case of, eg, 10x10x0
+if (size(X,4)~=1) num_dims=4; end;
+if (size(X,5)~=1) num_dims=5; end;
+if (size(X,6)~=1) num_dims=6; end;
 FF=fopen(fname,'w');
 complex=1;
 if (isreal(X)) complex=0; end;

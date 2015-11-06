@@ -11,7 +11,6 @@ addpath('isosplit');
 if (~exist('output','dir')) mkdir('output'); end;
 if (~exist('output/detect','dir')) mkdir('output/detect'); end;
 if (~exist('output/cluster','dir')) mkdir('output/cluster'); end;
-if (~exist('output/cluster2','dir')) mkdir('output/cluster2'); end;
 if (~exist('output/consolidate','dir')) mkdir('output/consolidate'); end;
 %if (~exist('output/fit','dir')) mkdir('output/fit'); end;
 

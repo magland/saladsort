@@ -6,6 +6,7 @@ opts.raw_mda='raw/ms11d45_groupA_pre.mda';
 opts.detect_times_prefix='output/detect/times_';
 opts.detect_clips_prefix='output/detect/clips_';
 
+opts.cluster_times_prefix='output/cluster/times_';
 opts.cluster_labels_prefix='output/cluster/labels_';
 opts.cluster_waveforms_prefix='output/cluster/waveforms_';
 opts.cluster_features_prefix='output/cluster/features_';
@@ -27,8 +28,11 @@ opts.locations='raw/locations.mda';
 opts.adjacency='raw/adjacency.mda';
 
 %opts.timepoints=1:19e6; %Something seems to change around timepoint 19-20 million
-opts.timepoints=1:5e6;
-opts.num_cluster_features=3;
+opts.timepoints=[1:2.9e6,3.0e6:19e6]; %Something seems to change around timepoint 19-20 million
+%opts.timepoints=1:5e6;
+opts.num_cluster_features=6;
 opts.clip_size=80;
+opts.detection_threshold=3;
+opts.detection_interval=80;
 
 end

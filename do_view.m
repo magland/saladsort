@@ -1,4 +1,6 @@
-function do_view
+function do_view(ch)
+
+if nargin<1 ch=0; end;
 
 %close all;
 
@@ -11,18 +13,17 @@ opts=configuration_opts;
 
 data=grab_data(opts);
 
-%view_channel_results(11,opts,data);
-%view_channel_results(3,opts,data);
-%view_channel_results(8,opts,data);
-%view_channel_results(11,opts,data);
-%view_channel_results(13,opts,data);
-%view_channel_results(15,opts,data);
+if (ch>0)
+    view_channel_results(ch,opts,data);
+else
+    view_waveforms(opts);
+    view_events(5e6,opts,data);
+end;
 
 % Just view the raw data
 %spikespy(data.X);
 
-view_waveforms(opts);
-%view_events(5e6,opts,data);
+
 
 end
 
@@ -45,13 +46,15 @@ end
 function view_channel_results(ch,opts,data)
 
 figure; position_figure(gcf,'center',1500,500);
-subplot(1,2,1);
+subplot(1,3,1);
 view_detected_waveforms(ch,opts);
 title(sprintf('Detected waveforms for channel %d',ch));
-subplot(1,2,2);
-view_detected_clusters(ch,opts);
-title(sprintf('Detected clusters for channel %d',ch));
-title(sprintf('Channel %d',ch));
+subplot(1,3,2);
+view_detected_clusters(ch,opts,1);
+title(sprintf('Detected clusters for channel %d (pos)',ch));
+subplot(1,3,3);
+view_detected_clusters(ch,opts,-1);
+title(sprintf('Detected clusters for channel %d (neg)',ch));
 
 PARAMS.ch=ch; PARAMS.opts=opts; PARAMS.data=data;
 h=uicontrol(gcf,'Style','pushbutton','String','View events in spikespy','Position',[20,20,300,20],'Callback',{@cb_view_events_in_spikespy,PARAMS});

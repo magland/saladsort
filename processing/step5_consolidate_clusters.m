@@ -4,9 +4,9 @@ timerA=tic;
 
 fprintf('Step 5: Consolidate clusters... ');
 
-cluster2_times_prefix=opts.detect_times_prefix;
-cluster2_labels_prefix=opts.cluster_labels_prefix;
-cluster2_waveforms_prefix=opts.cluster_waveforms_prefix;
+cluster_times_prefix=opts.cluster_times_prefix;
+cluster_labels_prefix=opts.cluster_labels_prefix;
+cluster_waveforms_prefix=opts.cluster_waveforms_prefix;
 %cluster2_times_prefix=opts.cluster2_times_prefix;
 %cluster2_labels_prefix=opts.cluster2_labels_prefix;
 %cluster2_waveforms_prefix=opts.cluster2_waveforms_prefix;
@@ -27,9 +27,9 @@ LOAD_CHANNELS=[];
 current_label=1;
 
 for j=1:M
-    fname_cluster2_times=[cluster2_times_prefix,sprintf('%d.mda',j)];
-    fname_cluster2_labels=[cluster2_labels_prefix,sprintf('%d.mda',j)];
-    fname_cluster2_waveforms=[cluster2_waveforms_prefix,sprintf('%d.mda',j)];
+    fname_cluster2_times=[cluster_times_prefix,sprintf('%d.mda',j)];
+    fname_cluster2_labels=[cluster_labels_prefix,sprintf('%d.mda',j)];
+    fname_cluster2_waveforms=[cluster_waveforms_prefix,sprintf('%d.mda',j)];
     times=readmda(fname_cluster2_times);
     labels=readmda(fname_cluster2_labels);
     WF=readmda(fname_cluster2_waveforms);
