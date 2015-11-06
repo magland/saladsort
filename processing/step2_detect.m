@@ -14,13 +14,21 @@ AM=readmda(opts.adjacency);
 fprintf('Detecting...\n');
 oo.thresh=opts.detection_threshold;
 oo.interval=opts.detection_interval;
+oo.clip_size=opts.clip_size;
 for j=1:size(X,1)
     fname_pos=[detect_times_prefix,sprintf('pos_%d.mda',j)];
     fname_neg=[detect_times_prefix,sprintf('neg_%d.mda',j)];
     fname2_pos=[detect_clips_prefix,sprintf('pos_%d.mda',j)];
     fname2_neg=[detect_clips_prefix,sprintf('neg_%d.mda',j)];
     if ((~exist(fname_pos,'file'))||(~exist(fname_neg,'file'))||(~exist(fname2_pos,'file'))||(~exist(fname2_neg,'file')))
-        [Tpos,Tneg]=detect_events(X(j,:),oo);
+        
+        Xfilt=ss_freqfilter(X(j,:),30000,opts.detect_freq_min,opts.detect_freq_max);
+        for j=1:size(Xfilt,1)
+            stdev0=sqrt(var(Xfilt(j,:)));
+            Xfilt(j,:)=Xfilt(j,:)/stdev0;
+        end;
+        
+        [Tpos,Tneg]=detect_events(Xfilt,oo);
         
         clips_pos=extract_clips(X,Tpos,opts.clip_size);
         clips_neg=extract_clips(X,Tneg,opts.clip_size);
@@ -129,6 +137,15 @@ times_pos=times(pos_inds);
 times_neg=times(neg_inds);
 Tpos=times_pos(find(use_it(pos_inds)));
 Tneg=times_neg(find(use_it(neg_inds)));
+
+% clips_pos=extract_clips(X,Tpos,opts.clip_size);
+% stdevs00=squeeze(sqrt(sum(sum(clips_pos.^2,1),2)/(size(clips_pos,1)*size(clips_pos,2))));
+% inds00=find(absX(Tpos)>thresh*stdevs00');
+% Tpos=Tpos(inds00);
+% clips_neg=extract_clips(X,Tneg,opts.clip_size);
+% stdevs00=squeeze(sqrt(sum(sum(clips_neg.^2,1),2)/(size(clips_neg,1)*size(clips_neg,2))));
+% inds00=find(absX(Tneg)>thresh*stdevs00');
+% Tneg=Tneg(inds00);
 
 end
 

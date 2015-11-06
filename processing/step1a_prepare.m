@@ -38,7 +38,7 @@ fprintf('Writing %s... ',locations_out);
 writemda(L,locations_out);
 
 fprintf('Creating adjacency matrix... ');
-radius=1.5;
+radius=opts.adjacency_radius;
 AM=zeros(N,N);
 for i1=1:N
     for i2=1:N
@@ -51,11 +51,11 @@ end;
 fprintf('Writing %s... \n',adjacency_out);
 writemda(AM,adjacency_out);
 
-% if (opts.verbose)
-%     fff=figure; imagesc(AM);
-%     title(sprintf('Adjacency matrix using radius=%g',radius));
-%     drawnow;
-% end;
+if (opts.verbose)
+    fff=figure; imagesc(AM);
+    title(sprintf('Adjacency matrix using radius=%g',radius));
+    drawnow;
+end;
 
 fprintf('\nElapsed: %g seconds',toc(timerA));
 fprintf('\n');

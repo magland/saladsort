@@ -62,7 +62,7 @@ for j=1:size(X,1)
         times=[];
         labels=[];
         if Nclips_pos>0
-            labels_pos=isosplit(FF_pos);
+            labels_pos=do_cluster(clipsFF_pos,opts);
             Kpos=max(labels_pos);
             times=[times,detect_times_pos];
             labels=[labels,labels_pos];
@@ -71,7 +71,7 @@ for j=1:size(X,1)
             Kpos=0;
         end;
         if Nclips_neg>0
-            labels_neg=isosplit(FF_neg);
+            labels_neg=do_cluster(clipsFF_neg,opts);
             times=[times,detect_times_neg];
             labels=[labels,labels_neg+Kpos];
         else
@@ -113,7 +113,10 @@ for j=1:size(X,1)
 %         labels(find(labels0>zero_label_2))=labels(find(labels0>zero_label_2))-1;
 %         if (K-2~=max(labels)) error('Unexpected problem!'); end;
         
-        [times,labels,clips]=remove_small_clusters(times,labels,clips,60);
+        %[times,labels,clips]=remove_small_clusters(times,labels,clips,60);
+        
+        [times,labels,clips]=refine_clusters(times,labels,clips,adjacent_channels,opts);
+        
         K=max(labels);
         
         WF=zeros(M,T,K);
@@ -122,11 +125,13 @@ for j=1:size(X,1)
             WF(:,:,k)=median(clips(:,:,inds),3);
         end;
         
+        K_to_use=compute_number_of_waveforms_to_use(WF,j);
+        
         fprintf('Writing %s... ',fname_cluster_waveforms);
         writemda(WF,fname_cluster_waveforms);
         fprintf('Writing %s...\n',fname_cluster_times);
         writemda(times,fname_cluster_times);
-        fprintf('Writing %s (%d clusters detected)...\n',fname_cluster_labels,K);
+        fprintf('Writing %s (%d clusters detected, using %d)...\n',fname_cluster_labels,K,K_to_use);
         writemda(labels,fname_cluster_labels);
         fprintf('Writing %s and %s...\n',fname_cluster_labels_pos,fname_cluster_labels_neg);
         writemda(labels_pos,fname_cluster_labels_pos);
@@ -165,3 +170,90 @@ clips2=clips(:,:,inds);
 
 end
 
+function [times2,labels2,clips2]=refine_clusters(times,labels,clips,channels,opts)
+
+[M,T,NC]=size(clips);
+M0=length(channels);
+
+for ii=1:3
+    K=max(labels);
+    WF=zeros(M0,T,K);
+    for k=1:K
+        inds=find(labels==k);
+        WF(:,:,k)=median(clips(channels,:,inds),3);
+    end;
+    use_it=zeros(1,size(clips,3));
+    for k=1:K
+        WF0=WF(:,:,k);
+        inds=find(labels==k);
+        NC0=length(inds);
+        clips0=clips(channels,:,inds);
+        %clips0_filt=pca_filter_clips(clips0,opts.num_cluster_features);
+        
+        resid_sumsqr=sum(sum((clips0-repmat(WF0,1,1,NC0)).^2,1),2);
+        clips0_sumsqr=sum(sum(clips0.^2,1),2);
+        okay_inds=find(resid_sumsqr<clips0_sumsqr);
+        if (length(okay_inds)==0) okay_inds=1; end; %just to avoid a possible error. In this case, this cluster will be removed anyway.
+        use_it(inds(okay_inds))=1;
+    end;
+    fprintf(' refine:%d/%d ',sum(use_it),length(use_it));
+    inds00=find(use_it);
+    times=times(inds00);
+    labels=labels(inds00);
+    clips=clips(:,:,inds00);
+end;
+
+[times,labels,clips]=remove_small_clusters(times,labels,clips,10);
+
+times2=times;
+labels2=labels;
+clips2=clips;
+end
+
+function ret=compute_number_of_waveforms_to_use(WF,k)
+sizes=squeeze(sum(WF.^2,2));
+max_sizes=(max(sizes,[],1));
+rel_sizes=sizes(k,:)./max_sizes;
+labels_to_use=find(rel_sizes>=0.9);
+ret=length(labels_to_use);
+end
+
+function clips_filt=pca_filter_clips(clips,npca)
+
+[M,T,NC]=size(clips);
+
+[FF,info]=ss_eventfeatures(clips);
+FF=FF(1:npca,:);
+SS=info.subspace;
+SS=SS(:,:,1:npca);
+
+SS0=reshape(SS,[M*T,size(SS,3)]);
+clips_filt=reshape(SS0*FF,[M,T,NC]);
+
+end
+
+function labels=do_cluster(clips,opts)
+FF=ss_eventfeatures(clips);
+FF=FF(1:opts.num_cluster_features,:);
+%fprintf('  iso--');
+labels0=isosplit(FF);
+K=max(labels0);
+%fprintf('%d ',K);
+labels=labels0;
+% labels=zeros(size(labels0));
+% lab=0;
+% for k=1:K
+%     inds=find(labels0==k);
+%     fprintf('iso%d--',k);
+%     FF2=ss_eventfeatures(clips(:,:,inds));
+%     FF2=FF2(1:opts.num_cluster_features,:);
+%     labels2=isosplit(FF2);
+%     K2=max(labels2);
+%     fprintf('%d ',K2);
+%     for kk=1:K2
+%         inds2=find(labels2==kk);
+%         lab=lab+1;
+%         labels(inds(inds2))=lab;
+%     end;
+% end;
+end
