@@ -26,6 +26,11 @@ data=step1_preprocess(opts);
 fprintf('Bandpass filter...\n');
 step1a_prepare(opts);
 
+if (~exist('output/raw.mda','file'))
+    fprintf('Writing output/raw.mda...\n');
+    writemda(data.X,'output/raw.mda');
+end;
+
 %Detect
 step2_detect(opts,data);
 
