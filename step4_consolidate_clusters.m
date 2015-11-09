@@ -38,7 +38,7 @@ for j=1:M
         sizes=squeeze(sum(WF.^2,2));
         max_sizes=(max(sizes,[],1));
         rel_sizes=sizes(j,:)./max_sizes;
-        labels_to_use=find(rdel_sizes>=0.9);
+        labels_to_use=find(rel_sizes>=0.9);
 
         for ii=1:length(labels_to_use)
             k=labels_to_use(ii);
